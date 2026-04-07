@@ -1,16 +1,17 @@
-FROM ubuntu:latest as BUILD
+FROM maven:3.9.6-eclipse-temurin-17 as build
 
-RUN apt-get updte
-RUN apt-get install openjdk-17-jdk -y
+WORKDIR /app
 
 COPY . .
 
-RUN apt-get install maven -y
-RUN mvn clean install
+RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:17-jdk-jammy
-EXPOSE 8080
 
-COPY --from=build /target/todolist-1.0.0jar app.jar
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
+EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
